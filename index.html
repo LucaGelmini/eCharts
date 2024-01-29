@@ -23,6 +23,10 @@
     { name: "ProductF", value: [Math.random() * 100, Math.random() * 100] },
   ];
 
+
+fetch("/data_secciones").then(res=>res.json()).then(console.log)
+
+  
   const options = {
     xAxis: {
       type: "category",
