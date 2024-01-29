@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/echarts@latest/dist/echarts.min.js"></script>
+    <title>Echart flechitas</title>
+  </head>
+  <body>
+    <div id="main" style="width: 100vw; height: 100vh"></div>
+  </body>
+</html>
+
+<script>
+  const myChart = echarts.init(document.getElementById("main"));
+
+  const data = [
+    { name: "ProductA", value: [Math.random() * 100, Math.random() * 100] },
+    { name: "ProductB", value: [Math.random() * 100, Math.random() * 100] },
+    { name: "ProductC", value: [Math.random() * 100, Math.random() * 100] },
+    { name: "ProductD", value: [Math.random() * 100, Math.random() * 100] },
+    { name: "ProductE", value: [Math.random() * 100, Math.random() * 100] },
+    { name: "ProductF", value: [Math.random() * 100, Math.random() * 100] },
+  ];
+
+  const options = {
+    xAxis: {
+      type: "category",
+      data: data.map((category) => category.name),
+    },
+    yAxis: {
+      type: "value",
+    },
+    series: data
+      .map((category, index) => {
+        const [prevVal, currVal] = category.value;
+        const diff = currVal - prevVal;
+        const start = diff >= 0 ? prevVal : currVal;
+        const end = start + Math.abs(diff);
+        const color = diff >= 0 ? "green" : "red";
+        const rotation = diff < 0 ? 180 : 0;
+
+        return [
+          {
+            name: category.name,
+            type: "scatter",
+
+            data: [
+              [index, start],
+              [index, end],
+            ],
+          },
+          {
+            name: "Arrow" + category.name,
+            type: "line",
+
+            data: [
+              [index, start],
+              [index, end],
+            ],
+            lineStyle: {
+              color: color,
+            },
+            symbolSize: 15,
+            symbol: (params, api) => {
+              if (diff < 0) {
+                return api.dataIndex === 0 ? "arrow" : "none";
+              }
+              if (diff >= 0) {
+                return api.dataIndex === 1 ? "arrow" : "none";
+              }
+            },
+            symbolRotate: rotation,
+            itemStyle: {
+              color: color,
+            },
+          },
+        ];
+      })
+      .flat(),
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "cross",
+      },
+      formatter: (params) => {
+        let prevVal = undefined;
+        let currVal = undefined;
+        params.forEach((item, index) => {
+          if (item.componentSubType === "scatter") {
+            if (index == 0) {
+              prevVal = item.data[1];
+            }
+            if (index == 1) {
+              currVal = item.data[1];
+            }
+          }
+        });
+        console.log(prevVal, currVal);
+        return `<p>2023: ${prevVal}</p><p>2024: ${currVal}</p>`;
+      },
+    },
+  };
+
+  myChart.setOption(options);
+</script>
