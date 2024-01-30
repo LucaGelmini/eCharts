@@ -13,7 +13,7 @@
 
 <script>
   const myChart = echarts.init(document.getElementById("main"));  const fetchAndSortData = async () => {
-    const res = await fetch("/data_secciones.json");
+    const res = await fetch("/eCharts/data_secciones.json");
     let data = await res.json();
     data = data
       .sort((prev, curr) => {
