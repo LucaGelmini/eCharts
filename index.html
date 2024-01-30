@@ -45,17 +45,6 @@
   };
 
   fetchAndSortData().then((data) => {
-    console.log(
-      data.map((item) => {
-        return {
-          type: "line",
-          data: [
-            [item.expo2023, item.index],
-            [item.expo2024, item.index],
-          ],
-        };
-      })
-    );
     const options = {
       title: {
         text: "Exportaciones de 2023 y 2024 por secciones",
