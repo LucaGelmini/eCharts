@@ -12,118 +12,124 @@
 </html>
 
 <script>
-  const myChart = echarts.init(document.getElementById("main"));
+  const myChart = echarts.init(document.getElementById("main"));  const fetchAndSortData = async () => {
+    const res = await fetch("/data_secciones.json");
+    let data = await res.json();
+    data = data
+      .sort((prev, curr) => {
+        prev = prev.expo2023 > prev.expo2024 ? prev.expo2023 : prev.expo2024;
+        curr = curr.expo2023 > curr.expo2024 ? curr.expo2023 : curr.expo2024;
+        return prev - curr;
+      })
+      .map((row, index) => {
+        splited = row.secciones.split("-");
+        row.xAxisName = splited.length > 1 ? splited[0] : "Resto";
+        return {
+          secciones: row.secciones,
+          expo2024: row.expo2024,
+          viaExpo: row.viaExpo,
+          impo2024: row.impo2024,
+          viaImpo: row.viaImpo,
+          saldo: row.saldo,
+          expo2023: row.expo2023,
+          impo2023: row.impo2023,
+          xAxisName: row.xAxisName,
+          index: index,
+        };
+      });
 
-  /*const data = [
-    { name: "ProductA", value: [Math.random() * 100, Math.random() * 100] },
-    { name: "ProductB", value: [Math.random() * 100, Math.random() * 100] },
-    { name: "ProductC", value: [Math.random() * 100, Math.random() * 100] },
-    { name: "ProductD", value: [Math.random() * 100, Math.random() * 100] },
-    { name: "ProductE", value: [Math.random() * 100, Math.random() * 100] },
-    { name: "ProductF", value: [Math.random() * 100, Math.random() * 100] },
-  ];*/
+    return data;
+  };
 
-  fetch("/data_secciones.json")
-    .then((res) => res.json())
-    .then((data) => {
-      data = data
-        .sort((prev, curr) => {
-          prev = prev.expo2023 > prev.expo2024 ? prev.expo2023 : prev.expo2024;
-          curr = curr.expo2023 > curr.expo2024 ? curr.expo2023 : curr.expo2024;
-          return prev - curr;
-        })
-        .map((row) => {
-          splited = row.secciones.split("-");
-          row.xAxisName = splited.length > 1 ? splited[0] : "Resto";
-          return row;
-        });
-
-      const options = {
-        title: {
-          text: "Exportaciones de 2023 y 2024 por secciones",
-          left: "center",
+  fetchAndSortData().then((data) => {
+    console.log(
+      data.map((item) => {
+        return {
+          type: "line",
+          data: [
+            [item.expo2023, item.index],
+            [item.expo2024, item.index],
+          ],
+        };
+      })
+    );
+    const options = {
+      title: {
+        text: "Exportaciones de 2023 y 2024 por secciones",
+        left: "center",
+      },
+      dataset: {
+        source: data,
+      },
+      xAxis: { type: "value" },
+      yAxis: {
+        type: "category",
+        axisLabel: {
+          formatter: (params, index) => {
+            return data[index].xAxisName;
+          },
+          interval: 0,
         },
-        yAxis: {
-          type: "category",
-          data: data.map((row) => row.xAxisName),
-          axisLabel: {
-            interval: 0,
+      },
+      series: [
+        {
+          type: "scatter",
+          encode: {
+            x: "expo2023",
+            y: "index",
           },
         },
-        xAxis: {
-          type: "value",
-        },
-        series: data
-          .map((row, index) => {
-            const prevVal = row.expo2023;
-            const currVal = row.expo2024;
-            const diff = currVal - prevVal;
-            const start = diff >= 0 ? prevVal : currVal;
-            const end = start + Math.abs(diff);
-            const color = diff >= 0 ? "green" : "red";
-            const rotation = diff < 0 ? 90 : -90;
-
-            return [
-              {
-                name: row.secciones,
-                type: "scatter",
-
-                data: [
-                  [start, index],
-                  [end, index],
-                ],
-              },
-              {
-                name: "Arrow" + row.secciones,
-                type: "line",
-
-                data: [
-                  [start, index],
-                  [end, index],
-                ],
-                lineStyle: {
-                  color: color,
-                },
-                symbolSize: 15,
-                symbol: (params, api) => {
-                  if (diff < 0) {
-                    return api.dataIndex === 0 ? "arrow" : "none";
-                  }
-                  if (diff >= 0) {
-                    return api.dataIndex === 1 ? "arrow" : "none";
-                  }
-                },
-                symbolRotate: rotation,
-                itemStyle: {
-                  color: color,
-                },
-              },
-            ];
-          })
-          .flat(),
-        tooltip: {
-          trigger: "axis",
-          axisPointer: {
-            type: "cross",
+        {
+          type: "scatter",
+          encode: {
+            x: "expo2024",
+            y: "index",
           },
-          formatter: (params) => {
-            let prevVal = undefined;
-            let currVal = undefined;
-            params.forEach((item, index) => {
-              if (item.componentSubType === "scatter") {
-                if (index == 0) {
-                  currVal = item.data[0];
-                }
-                if (index == 1) {
-                  prevVal = item.data[0];
-                }
+        },
+        ...data.map((item) => {
+          const prevVal = item.expo2023;
+          const currVal = item.expo2024;
+          const diff = currVal - prevVal;
+          const start = diff >= 0 ? prevVal : currVal;
+          const end = start + Math.abs(diff);
+          const color = diff >= 0 ? positiveColor : negativeColor;
+          const rotation = diff < 0 ? 90 : -90;
+          return {
+            type: "line",
+            data: [
+              [item.expo2023, item.index],
+              [item.expo2024, item.index],
+            ],
+            lineStyle: {
+              color: color,
+            },
+            symbolSize: 15,
+            symbol: (params, api) => {
+              if (diff < 0) {
+                return api.dataIndex === 0 ? "none" : "arrow";
               }
-            });
-            return `<h3>${params[0].seriesName}</h3><p>2023: ${prevVal}MUSD</p><p>2024: ${currVal}MUSD</p>`;
-          },
+              if (diff >= 0) {
+                return api.dataIndex === 0 ? "none" : "arrow";
+              }
+            },
+            symbolRotate: rotation,
+            itemStyle: {
+              color: color,
+            },
+          };
+        }),
+      ],
+      tooltip: {
+        trigger: "axis",
+        formatter: function (params) {
+          return `<h3>${params[0].data.secciones}</h3>
+            <p>Expo 2024: ${params[0].data.expo2024}</p>
+            <p>Expo 2023: ${params[0].data.expo2023}</p>
+            <p>V.i.a Expo: ${params[0].data.viaExpo}</p>
+            <p>Saldo: ${params[0].data.saldo}</p>`;
         },
-      };
-
-      myChart.setOption(options);
-    });
+      },
+    };
+    myChart.setOption(options);
+  });
 </script>
