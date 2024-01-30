@@ -12,7 +12,10 @@
 </html>
 
 <script>
-  const myChart = echarts.init(document.getElementById("main"));  const fetchAndSortData = async () => {
+  const positiveColor = "green";
+  const negativeColor = "red";
+  const myChart = echarts.init(document.getElementById("main"));
+  const fetchAndSortData = async () => {
     const res = await fetch("/eCharts/data_secciones.json");
     let data = await res.json();
     data = data
