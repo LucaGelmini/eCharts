@@ -7,16 +7,17 @@
     <title>Echart flechitas</title>
   </head>
   <body>
-    <div id="main" style="width: 100vw; height: 100vh"></div>
+    <div id="seccionesContainer" style="width: 100vw; height: 100vh"></div>
+    <div id="complejosContainer" style="width: 100vw; height: 100vh"></div>
   </body>
 </html>
 
 <script>
   const positiveColor = "green";
   const negativeColor = "red";
-  const myChart = echarts.init(document.getElementById("main"));
+  const myChart = echarts.init(document.getElementById("seccionesContainer"));
   const fetchAndSortData = async () => {
-    const res = await fetch("/eCharts/data_secciones.json");
+    const res = await fetch("/data_secciones.json");
     let data = await res.json();
     data = data
       .sort((prev, curr) => {
@@ -124,5 +125,121 @@
       },
     };
     myChart.setOption(options);
+  });
+</script>
+
+<script>
+  const myChart2 = echarts.init(document.getElementById("complejosContainer"));
+  const fetchAndSortData2 = async () => {
+    const res = await fetch("/data_complejos_c1.json");
+    let data = await res.json();
+    data = data
+      .sort((prev, curr) => {
+        prev =
+          prev.Part_2022 > prev.Part_2023 ? prev.Part_2022 : prev.Part_2023;
+        curr =
+          curr.Part_2022 > curr.Part_2023 ? curr.Part_2022 : curr.Part_2023;
+        return prev - curr;
+      })
+      .map((row, index) => {
+        row.xAxisName = row.Complejo;
+        return {
+          Complejo: row.Complejo,
+          Part_2023: row.Part_2023,
+          Part_2022: row.Part_2022,
+          dol_2023: row["2023_dol"],
+          dol_2022: row["2022_dol"],
+          varia: row.varia,
+          "top2002-2023": row["top2002-2023"],
+          xAxisName: row.xAxisName,
+          index: index,
+        };
+      });
+
+    return data;
+  };
+
+  fetchAndSortData2().then((data) => {
+    const options2 = {
+      title: {
+        text: "Participación de los principales complejos exportadores entre 2023 y 2024",
+        left: "center",
+      },
+      dataset: {
+        source: data,
+      },
+      xAxis: { type: "value" },
+      yAxis: {
+        type: "category",
+        axisLabel: {
+          margin: 20,
+          formatter: (params, index) => {
+            return data[index].xAxisName;
+          },
+          interval: 0,
+        },
+      },
+      series: [
+        {
+          type: "scatter",
+          encode: {
+            x: "Part_2022",
+            y: "index",
+          },
+        },
+        {
+          type: "scatter",
+          encode: {
+            x: "Part_2023",
+            y: "index",
+          },
+        },
+        ...data.map((item) => {
+          const prevVal = item.Part_2022;
+          const currVal = item.Part_2023;
+          const diff = currVal - prevVal;
+          const start = diff >= 0 ? prevVal : currVal;
+          const end = start + Math.abs(diff);
+          const color = diff >= 0 ? positiveColor : negativeColor;
+          const rotation = diff < 0 ? 90 : -90;
+          return {
+            type: "line",
+            data: [
+              [item.Part_2022, item.index],
+              [item.Part_2023, item.index],
+            ],
+            lineStyle: {
+              color: color,
+            },
+            symbolSize: 15,
+            symbol: (params, api) => {
+              if (diff < 0) {
+                return api.dataIndex === 0 ? "none" : "arrow";
+              }
+              if (diff >= 0) {
+                return api.dataIndex === 0 ? "none" : "arrow";
+              }
+            },
+            symbolRotate: rotation,
+            itemStyle: {
+              color: color,
+            },
+          };
+        }),
+      ],
+      tooltip: {
+        trigger: "axis",
+        formatter: function (params) {
+          return `<h3>${params[0].data.Complejo}</h3>
+            <p>Participación 2024: ${params[0].data.Part_2023}%</p>
+            <p>Participación 2023: ${params[0].data.Part_2022}%</p>
+            <p>V.i.a: ${params[0].data.varia}%</p>
+            <p>Monto 2022: ${params[0].data.dol_2022}US$</p>
+            <p>Monto 2023: ${params[0].data.dol_2023}US$</p>
+            <p>Año rećord 2022-2023: ${params[0].data["top2002-2023"]}</p>`;
+        },
+      },
+    };
+    myChart2.setOption(options2);
   });
 </script>
