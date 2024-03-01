@@ -17,7 +17,7 @@
   const negativeColor = "red";
   const myChart = echarts.init(document.getElementById("seccionesContainer"));
   const fetchAndSortData = async () => {
-    const res = await fetch("/data_secciones.json");
+    const res = await fetch("/eCharts/data_secciones.json");
     let data = await res.json();
     data = data
       .sort((prev, curr) => {
@@ -131,7 +131,7 @@
 <script>
   const myChart2 = echarts.init(document.getElementById("complejosContainer"));
   const fetchAndSortData2 = async () => {
-    const res = await fetch("/data_complejos_c1.json");
+    const res = await fetch("/eCharts/data_complejos_c1.json");
     let data = await res.json();
     data = data
       .sort((prev, curr) => {
