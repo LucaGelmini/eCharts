@@ -139,13 +139,13 @@
     const res = await fetch("/eCharts/data_complejos_c1.json");
     let data = await res.json();
     data = data
-      .sort((prev, curr) => {
-        prev =
-          prev.Part_2022 > prev.Part_2023 ? prev.Part_2022 : prev.Part_2023;
-        curr =
-          curr.Part_2022 > curr.Part_2023 ? curr.Part_2022 : curr.Part_2023;
-        return prev - curr;
-      })
+      // .sort((prev, curr) => {
+      //   prev =
+      //     prev.Part_2022 > prev.Part_2023 ? prev.Part_2022 : prev.Part_2023;
+      //   curr =
+      //     curr.Part_2022 > curr.Part_2023 ? curr.Part_2022 : curr.Part_2023;
+      //   return prev - curr;
+      // })
       .map((row, index) => {
         row.xAxisName = row.Complejo;
         return {
