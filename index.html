@@ -8,14 +8,15 @@
   </head>
   <body style=>
     <div id="seccionesContainer" style="width: 100vw; height: 100vh"></div>
-    <div id="complejosContainer" style="margin-left: 300px; width: 30vw; height: 100vh; overflow: visible;"></div>
+    <!-- <input /> -->
+    <div id="complejosContainer" style="width: 85vw; height: 100vh; margin: auto; overflow: visible;"></div>
   </body>
 </html>
 
 <script>
   const positiveColor = "green";
   const negativeColor = "red";
-  const myChart = echarts.init(document.getElementById("seccionesContainer"));
+  const myChart = echarts.init(document.getElementById("seccionesContainer"), null,{renderer:'svg'});
   const fetchAndSortData = async () => {
     const res = await fetch("/eCharts/data_secciones.json");
     let data = await res.json();
@@ -64,6 +65,9 @@
           },
           interval: 0,
         },
+      },
+      grid:{
+        right: 200
       },
       series: [
         {
@@ -129,7 +133,8 @@
 </script>
 
 <script>
-  const myChart2 = echarts.init(document.getElementById("complejosContainer"));
+  const container = document.getElementById("complejosContainer")
+  const myChart2 = echarts.init(container, null,{renderer:'svg', width: container.width, height: container.height});
   const fetchAndSortData2 = async () => {
     const res = await fetch("/eCharts/data_complejos_c1.json");
     let data = await res.json();
@@ -172,7 +177,7 @@
       yAxis: {
         type: "category",
         axisLabel: {
-          margin: 20,
+          margin: 0,
           formatter: (params, index) => {
             return data[index].xAxisName;
           },
