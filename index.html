@@ -160,8 +160,12 @@
           index: index,
         };
       });
+      let inverted_data = []
+      for(let i = data.length-1; i>=0; i--){
+        inverted_data.push(data[i])
+      }
 
-    return data;
+    return inverted_data;
   };
 
   fetchAndSortData2().then((data) => {
@@ -236,8 +240,8 @@
         trigger: "axis",
         formatter: function (params) {
           return `<h3>${params[0].data.Complejo}</h3>
-            <p>Participación 2024: ${params[0].data.Part_2023}%</p>
-            <p>Participación 2023: ${params[0].data.Part_2022}%</p>
+            <p>Participación 2023: ${params[0].data.Part_2023}%</p>
+            <p>Participación 2022: ${params[0].data.Part_2022}%</p>
             <p>V.i.a: ${params[0].data.varia}%</p>
             <p>Monto 2022: ${params[0].data.dol_2022}US$</p>
             <p>Monto 2023: ${params[0].data.dol_2023}US$</p>
