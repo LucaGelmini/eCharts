@@ -17,7 +17,7 @@ df = (
         'Impo': 'impo2023'})
     .dropna(subset="secciones")
     .drop(["total", "capitulos"], axis=1))
-print(df)
+# print(df)
 
 df.to_json("data_secciones.json", orient="records", index=False)
 
@@ -27,7 +27,7 @@ df.to_json("data_secciones.json", orient="records", index=False)
 XLS_PATH_COMPLEJOS = "./esqueleto_complejos_2024.xlsx"
 
 df_complejos = (
-    pd.read_excel(XLS_PATH_COMPLEJOS, sheet_name="CUA NUE PAR TEXTO", header=6)
+    pd.read_excel(XLS_PATH_COMPLEJOS, sheet_name="CUA NUE PAR TEXTO", header=4)
     .rename(columns={
         "Unnamed: 0": "Complejo",
         "Paricipación sobre el total exportado 2023*": "Part_2023",
